@@ -12,10 +12,10 @@ export const generateToken = (
   const { JWT_SECRET, NODE_ENV } = process.env;
 
   if (!JWT_SECRET) {
-    return { success: false, error: 'JWT_SECRET was not provided.' };
+    return { error: 'JWT_SECRET was not provided.' };
   }
 
-  const token = jwt.sign({ userId }, JWT_SECRET, {
+  const token: string = jwt.sign({ userId }, JWT_SECRET, {
     expiresIn: '7d',
   });
 

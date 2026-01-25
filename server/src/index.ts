@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import authRoutes from './routes/auth.route';
 import connectToMongoDB from './db/connectToMongoDB';
+import cookieParser from 'cookie-parser';
 dotenv.config();
 
 const app = express();
@@ -14,6 +15,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
 

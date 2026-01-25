@@ -1,9 +1,12 @@
 interface ErrorType {
   error: unknown;
-  message: string;
+  functionName: string;
+  handler: 'middleware' | 'controller';
 }
-export const isError = ({ error, message }: ErrorType) => {
+
+export const isError = ({ error, functionName, handler }: ErrorType) => {
   const isError = error instanceof Error;
-  if (isError) console.log(`Error on ${message}: ${error.message}`);
+  if (isError)
+    console.log(`Error on  ${functionName} ${handler} : ${error.message}`);
   return isError;
 };
