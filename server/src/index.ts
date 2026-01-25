@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import authRoutes from './routes/auth.route';
+import connectToMongoDB from './db/connectToMongoDB';
 dotenv.config();
 
 const app = express();
@@ -13,8 +14,11 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 app.use(express.json());
+
 app.use('/api/auth', authRoutes);
 
-app.listen(5010, () => {
+app.listen(5010, async () => {
+  const connected = await connectToMongoDB();
+  if (!connected?.success) process.exit(1);
   console.log(`Server is running on: http://localhost:${PORT}`);
 });
