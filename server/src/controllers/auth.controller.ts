@@ -3,12 +3,11 @@ import User from '../models/user.model';
 import bcrypt from 'bcryptjs';
 import { isError } from '../types/guard';
 import { generateToken } from '../lib/utils';
-import { AuthRequest, User as UserType } from '../types';
+import { AuthRequest, UserId, User as UserType } from '../types';
 import cloudinary from '../lib/cloudinary';
 
 export const signup = async (req: Request, res: Response) => {
   try {
-    console.log(signup.name);
     const { email, fullName, password }: UserType = req.body;
 
     if (!email || !password || !fullName) {
@@ -102,7 +101,7 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
   try {
     const { profilePic }: UserType = req.body;
 
-    const userId = req?.user?._id;
+    const userId: UserId = req.user?._id;
 
     if (!userId) {
       return res.status(404).json({ error: 'User not found' });
