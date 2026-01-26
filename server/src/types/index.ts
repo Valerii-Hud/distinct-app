@@ -9,6 +9,7 @@ export interface User {
   fullName: string;
   password: string;
   profilePic?: string;
+  isVerified: boolean;
 }
 
 export interface Message {

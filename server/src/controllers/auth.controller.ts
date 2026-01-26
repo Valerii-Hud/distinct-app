@@ -44,6 +44,7 @@ export const signup = async (req: Request, res: Response) => {
         fullName: newUser.fullName,
         email: newUser.email,
         profilePic: newUser.profilePic,
+        isVerified: newUser.isVerified,
       });
     } else {
       return res.status(400).json({ error: 'Invalid user data' });
@@ -80,6 +81,7 @@ export const login = async (req: Request, res: Response) => {
       fullName: user.fullName,
       email: user.email,
       profilePic: user.profilePic,
+      isVerified: user.isVerified,
     });
   } catch (error) {
     isError({ error, functionName: login.name, handler: 'controller' });
