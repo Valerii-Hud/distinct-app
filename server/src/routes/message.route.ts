@@ -8,7 +8,7 @@ import {
 
 const router = express.Router();
 
-router.get('/', protectRoute, getUsersForSidebar);
+router.get('/users', protectRoute, getUsersForSidebar);
 router.get('/:receiverId', protectRoute, getMessages);
 router.post('/:receiverId', protectRoute, sendMessage);
 
