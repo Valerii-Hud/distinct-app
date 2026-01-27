@@ -2,29 +2,35 @@ import { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
 import { create } from 'zustand';
 import axiosInstance from '../lib/axios';
-import type { User } from '../types';
+import type { User, Message } from '../types';
 
-type DataState = 'users' | 'messages';
+type DataState = 'users' | 'messages' | 'selectedUser';
 type LoadingState = 'isUsersLoading' | 'isMessagesLoading';
 interface LoadResource {
-  loadingState: LoadingState;
+  loadingState?: LoadingState;
   dataState: DataState;
   endpoint: string;
 }
 
 interface ChatStore {
-  messages: [];
+  messages: Message[] | [];
   users: User[] | [];
-  selectedUser: User['_id'] | null;
+  selectedUser: User | null;
   onlineUsers: (string | undefined)[];
 
   isUsersLoading: boolean;
   isMessagesLoading: boolean;
 
   loadResource: ({ loadingState, endpoint, dataState }: LoadResource) => void;
+
+  getMessages: (userId: string) => void;
+  sendMessage: (messageData: {
+    text: string;
+    image: ArrayBuffer | string | null;
+  }) => void;
+
   getUsers: () => void;
-  getMessage: (userId: User['_id']) => void;
-  setSelectedUser: (userId: User['_id']) => void;
+  setSelectedUser: (userId: User | null) => void;
 }
 
 const useChatStore = create<ChatStore>((set, get) => ({
@@ -36,8 +42,10 @@ const useChatStore = create<ChatStore>((set, get) => ({
   isUsersLoading: false,
   isMessagesLoading: false,
 
-  loadResource: async ({ loadingState, endpoint, dataState }) => {
-    set({ [`${loadingState}`]: true });
+  loadResource: async ({ loadingState = null, endpoint, dataState }) => {
+    if (loadingState) {
+      set({ [`${loadingState}`]: true });
+    }
     try {
       const response = await axiosInstance.get(endpoint);
       set({ [`${dataState}`]: response.data });
@@ -46,7 +54,32 @@ const useChatStore = create<ChatStore>((set, get) => ({
         toast.error(error.response?.data.message || 'Something went wrong');
       }
     } finally {
-      set({ [`${loadingState}`]: false });
+      if (loadingState) {
+        set({ [`${loadingState}`]: false });
+      }
+    }
+  },
+
+  getMessages: async (userId) => {
+    get().loadResource({
+      loadingState: 'isMessagesLoading',
+      dataState: 'messages',
+      endpoint: `/messages/${userId}`,
+    });
+  },
+
+  sendMessage: async (messageData) => {
+    try {
+      const { selectedUser, messages } = get();
+      const response = await axiosInstance.post(
+        `/messages/send/${selectedUser?._id}`,
+        messageData
+      );
+      set({ messages: [...messages, response.data] });
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message || 'Something went wrong');
+      }
     }
   },
 
@@ -56,39 +89,14 @@ const useChatStore = create<ChatStore>((set, get) => ({
       dataState: 'users',
       endpoint: '/messages/users',
     });
-    // set({ isUsersLoading: true });
-    // try {
-    //   const response = await axiosInstance.get('/messages/users');
-    //   set({ users: response.data });
-    // } catch (error) {
-    //   if (error instanceof AxiosError) {
-    //     toast.error(error.response?.data.message || 'Something went wrong');
-    //   }
-    // } finally {
-    //   set({ isUsersLoading: false });
-    // }
   },
 
-  getMessage: async (userId) => {
+  setSelectedUser: (userId) => {
     get().loadResource({
-      loadingState: 'isMessagesLoading',
-      dataState: 'messages',
-      endpoint: `/messages/${userId}`,
+      dataState: 'selectedUser',
+      endpoint: `/messages/users/${userId}`,
     });
-    // set({ isMessagesLoading: true });
-    // try {
-    //   const response = await axiosInstance.get(`/messages/${userId}`);
-    //   set({ messages: response.data });
-    // } catch (error) {
-    //   if (error instanceof AxiosError) {
-    //     toast.error(error.response?.data.message || 'Something went wrong');
-    //   }
-    // } finally {
-    //   set({ isMessagesLoading: false });
-    // }
   },
-
-  setSelectedUser: (userId) => set({ selectedUser: userId }),
 }));
 
 export default useChatStore;

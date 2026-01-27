@@ -22,6 +22,23 @@ export const getUsersForSidebar = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const getUserById = async (req: AuthRequest, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById({
+      _id: userId,
+    }).select('-password');
+    res.status(200).json(user);
+  } catch (error) {
+    isError({
+      error,
+      functionName: getUserById.name,
+      handler: 'controller',
+    });
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 export const getMessages = async (req: AuthRequest, res: Response) => {
   try {
     const { receiverId } = req.params;
