@@ -1,8 +1,10 @@
-import { X } from 'lucide-react';
+// import { X } from 'lucide-react';
+import useAuthStore from '../store/useAuthStore';
 import useChatStore from '../store/useChatStore';
 
 const ChatHeader = () => {
-  const { selectedUser, setSelectedUser, onlineUsers } = useChatStore();
+  const { selectedUser } = useChatStore();
+  const { onlineUsers } = useAuthStore();
   if (!selectedUser) return;
   return (
     <div className="p-2.5 border-b border-base-300">
@@ -32,10 +34,14 @@ const ChatHeader = () => {
             </p>
           </div>
         </div>
-
-        <button onClick={() => setSelectedUser(null)}>
+        {/* TODO: */}
+        {/* <button
+          onClick={() => {
+            setSelectedUser('');
+          }}
+        >
           <X />
-        </button>
+        </button> */}
       </div>
     </div>
   );

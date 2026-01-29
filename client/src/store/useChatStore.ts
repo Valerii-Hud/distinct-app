@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { create } from 'zustand';
 import axiosInstance from '../lib/axios';
 import type { User, Message } from '../types';
+import useAuthStore from './useAuthStore';
 
 type DataState = 'users' | 'messages' | 'selectedUser';
 type LoadingState = 'isUsersLoading' | 'isMessagesLoading';
@@ -16,7 +17,6 @@ interface ChatStore {
   messages: Message[] | [];
   users: User[] | [];
   selectedUser: User | null;
-  onlineUsers: (string | undefined)[];
 
   isUsersLoading: boolean;
   isMessagesLoading: boolean;
@@ -30,7 +30,9 @@ interface ChatStore {
   }) => void;
 
   getUsers: () => void;
-  setSelectedUser: (userId: User | null) => void;
+  setSelectedUser: (userId: string | undefined) => void;
+  subscribeToMessages: () => void;
+  unsubscribeToMessages: () => void;
 }
 
 const useChatStore = create<ChatStore>((set, get) => ({
@@ -96,6 +98,21 @@ const useChatStore = create<ChatStore>((set, get) => ({
       dataState: 'selectedUser',
       endpoint: `/messages/users/${userId}`,
     });
+  },
+  subscribeToMessages: () => {
+    const { selectedUser } = get();
+    if (!selectedUser) return;
+
+    const newSocket = useAuthStore.getState().socket;
+
+    newSocket?.on('newMessage', (newMessage: Message) => {
+      if (newMessage.senderId !== selectedUser._id) return;
+      set({ messages: [...get().messages, newMessage] });
+    });
+  },
+  unsubscribeToMessages: () => {
+    const newSocket = useAuthStore.getState().socket;
+    newSocket?.off('newMessage');
   },
 }));
 

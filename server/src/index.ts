@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/messages', messageRoutes);
 
-server.listen(5010, async () => {
+server.listen(PORT, async () => {
   const connected = await connectToMongoDB();
   if (!connected?.success) process.exit(1);
   console.log(`Server is running on: http://localhost:${PORT}`);

@@ -4,6 +4,7 @@ import { AuthRequest, UserId } from '../types';
 import User from '../models/user.model';
 import Message from '../models/message.model';
 import cloudinary from '../lib/cloudinary';
+import { getReceiverSocketId, io } from '../lib/socket';
 
 export const getUsersForSidebar = async (req: AuthRequest, res: Response) => {
   try {
@@ -87,7 +88,10 @@ export const sendMessage = async (req: AuthRequest, res: Response) => {
       image: imageUrl,
     });
 
-    // TODO: <- implement socket.io
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('newMessage', newMessage);
+    }
 
     res.status(201).json(newMessage);
   } catch (error) {
