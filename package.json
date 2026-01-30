@@ -1,0 +1,21 @@
+{
+  "name": "distinct-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm install --prefix server && npm install --prefix client && npm run build --prefix client && npm run build --prefix server",
+    "start": " npm run start --prefix server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Valerii-Hud/distinct-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Valerii-Hud/distinct-app/issues"
+  },
+  "homepage": "https://github.com/Valerii-Hud/distinct-app#readme",
+  "description": ""
+}

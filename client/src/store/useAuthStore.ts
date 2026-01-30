@@ -5,7 +5,8 @@ import toast from 'react-hot-toast';
 import { AxiosError } from 'axios';
 import { io, Socket } from 'socket.io-client';
 
-const BASE_URL: string = 'http://localhost:5010';
+const BASE_URL: string =
+  import.meta.env.MODE === 'development' ? 'http://localhost:5010' : '/api';
 
 type ProfilePicture = { profilePic: string };
 interface HandleAuthRequest {
@@ -168,7 +169,7 @@ const useAuthStore = create<AuthStore>((set, get) => ({
     const { authUser, socket } = get();
     if (!authUser || socket?.connected) return;
     const newSocket: Socket = io(BASE_URL, {
-      query: {
+      auth: {
         userId: authUser._id,
       },
       transports: ['websocket', 'polling'],
