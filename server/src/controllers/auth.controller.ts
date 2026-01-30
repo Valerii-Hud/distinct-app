@@ -6,7 +6,7 @@ import { generateToken } from '../lib/utils';
 import { AuthRequest, UserId, User as UserType } from '../types';
 import cloudinary from '../lib/cloudinary';
 
-export const signup = async (req: Request, res: Response) => {
+export const signup = async (req: AuthRequest, res: Response) => {
   try {
     const { email, fullName, password }: UserType = req.body;
 
@@ -55,7 +55,7 @@ export const signup = async (req: Request, res: Response) => {
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: AuthRequest, res: Response) => {
   const { email, password }: UserType = req.body;
   try {
     const user = await User.findOne({ email });
@@ -89,7 +89,7 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const logout = async (_: Request, res: Response) => {
+export const logout = async (_: AuthRequest, res: Response) => {
   try {
     res.cookie('jwt', '', { maxAge: 0 });
     res.status(200).json({ message: 'Logged out successfully' });
@@ -134,6 +134,31 @@ export const checkAuth = async (req: AuthRequest, res: Response) => {
     res.status(200).json(req.user);
   } catch (error) {
     isError({ error, functionName: checkAuth.name, handler: 'controller' });
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const verify = async (req: AuthRequest, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { isVerified, adminPassword } = req.body;
+    if (adminPassword === String(process.env.ADMIN_PASSWORD)) {
+      const user = await User.findByIdAndUpdate(
+        userId,
+        {
+          isVerified,
+        },
+        { new: true }
+      );
+      if (!user) {
+        res.status(404).json({ error: 'User not found' });
+      }
+      res.status(200).json(user);
+    } else {
+      res.status(400).json({ error: 'Invalid Admin Password' });
+    }
+  } catch (error) {
+    isError({ error, functionName: verify.name, handler: 'controller' });
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
