@@ -27,10 +27,13 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/messages', messageRoutes);
 
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../client/dist')));
-  app.get(/.*/, (_, res) => {
-    res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
+// onrender bug
+if (process.env.NODE_ENV === 'development') {
+  const clientPath = path.resolve(__dirname, '../client/dist');
+  app.use(express.static(clientPath));
+
+  app.get('*', (_, res) => {
+    res.sendFile(path.join(clientPath, 'index.html'));
   });
 }
 
