@@ -27,13 +27,11 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/messages', messageRoutes);
 
-// onrender bug
+// onrender bug 17.02
 if (process.env.NODE_ENV === 'development') {
-  const clientPath = path.resolve(__dirname, '../client/dist');
-  app.use(express.static(clientPath));
-
-  app.get('*', (_, res) => {
-    res.sendFile(path.join(clientPath, 'index.html'));
+  app.use(express.static(path.join(__dirname, '../../client/dist')));
+  app.get(/.*/, (_, res) => {
+    res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
   });
 }
 
